@@ -9,6 +9,15 @@ load_dotenv()
 token = os.getenv("IPINFO_TOKEN")
 
 def get_location_from_ip(ip: str) -> dict:
+    """
+    Sends a request to the IPinfo API to get location information based on the provided IP address.
+
+    Args:
+        ip (str): The IP address to look up.
+    Returns:
+        dict: A dictionary containing location information such as city, region, country, 
+              loc (latitude, longitude) and provider.
+    """
     url = f"https://ipinfo.io/{ip}/json?token={token}"
     response = requests.get(url)
     

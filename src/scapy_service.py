@@ -40,5 +40,3 @@ def traceroute_tcp(host, dport=80, max_hops=30) -> dict:
 
         if reply and reply.haslayer(TCP) and reply[TCP].flags == 0x12:  # SYN-ACK 
             return data
-
-

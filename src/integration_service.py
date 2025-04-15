@@ -1,4 +1,4 @@
-from src.scapy_service import traceroute_tcp
+from scapy_service import traceroute_tcp
 from ipinfo_service import get_location_from_ip
 
 def get_route_info(host: str, dport: int=80) -> dict:
@@ -9,7 +9,7 @@ def get_route_info(host: str, dport: int=80) -> dict:
         host (str): The destination host for the traceroute.
         dport (int): The destination port for the TCP traceroute. Default is 80.
     Returns:
-        dict: A dictionary containing the hop number (TTL) as keys and a dictionary with 
+        dict: A dictionary containing the hop number (TTL) as keys and with 
               IP address and location information as values.
     """
     data = traceroute_tcp(host, dport)

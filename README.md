@@ -5,8 +5,14 @@
 1. Create a .env file with the variable `IPINFO_TOKEN = <your_token>`
     > **Note**: Go to https://ipinfo.io/ to create an account and get a token.
 
-2. From the project root path, run:
-    
-    - `$pip install -r requirements.txt`
+2. Create and activate a virtual environment to isolate the python dependencies:
+    - `python3 -m venv venv`
+    - `source venv/bin/activate`
 
-    - `$sudo PYTHONPATH=$(pwd) $(which python3) src/integration_service.py`
+3. From the project root path, run:
+    
+    - `pip install -r requirements.txt` to install the dependencies
+
+    - `sudo PYTHONPATH=$(pwd) $(which python3) -m streamlit run src/app_mapa.py` to run the streamlit app
+
+    - > **Alternatively** you can run only the integration service script to test it in terminal with: `sudo PYTHONPATH=$(pwd) $(which python3) src/integration_service.py`

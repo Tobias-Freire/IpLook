@@ -9,6 +9,7 @@ load_dotenv()
 token = os.getenv("IPINFO_TOKEN")
 
 def get_location_from_ip(ip: str) -> dict:
+    print(f"🌍 Buscando localização para IP: {ip}")
     """
     Sends a request to the IPinfo API to get location information based on the provided IP address.
 

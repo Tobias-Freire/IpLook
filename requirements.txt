@@ -1,2 +1,7 @@
 scapy
 dotenv
+requests
+streamlit
+streamlit_folium
+streamlit_js_eval
+folium

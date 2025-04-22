@@ -117,18 +117,23 @@ def create_map(user_coords, route_info, target_domain):
     
     return m
 
-# Entrada do domínio
-dominio_alvo = st.text_input("Digite o domínio para rastrear a rota:")
+container = st.container()
+with container:
+    dominio_alvo = st.text_input("Digite o domínio para rastrear a rota:")
 
 # Obtém localização do usuário se ainda não tiver
 if not st.session_state.user_location:
     if not get_user_location():
         st.stop()
+with st.expander("Localização do Usuário"):
+    st.write(st.session_state.user_location)
 
 # Processa domínio apenas se for novo
 if dominio_alvo and dominio_alvo != st.session_state.last_processed_domain:
     st.session_state.last_processed_domain = dominio_alvo
-    if not process_domain(dominio_alvo):
+    if process_domain(dominio_alvo):
+        st.rerun()
+    else:
         st.stop()
 
 # Exibe informações se disponíveis

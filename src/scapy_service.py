@@ -23,8 +23,6 @@ the source IP address (`reply.src`) is added to the dictionary.
 If the reply comes from a TCP layer and has the flags set to 0x12 (SYN-ACK), it indicates 
 that the destination host has been reached and is acknowledging the connection.
 """
-
-
 from scapy.all import IP, TCP, sr1
 
 def traceroute_tcp(host, dport=80, max_hops=30) -> dict:
@@ -40,3 +38,5 @@ def traceroute_tcp(host, dport=80, max_hops=30) -> dict:
 
         if reply and reply.haslayer(TCP) and reply[TCP].flags == 0x12:  # SYN-ACK 
             return data
+
+    return data

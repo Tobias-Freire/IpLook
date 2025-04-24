@@ -1,5 +1,6 @@
 # IpLook
 >Project done for Computer Networks discipline. The main goal of this project is to offer a visual representation of the path crossed by packets between servers and devices until the destination, as well as gathering some informations of the servers such as the provider.
+![image](https://github.com/user-attachments/assets/6f49b106-4fc0-4f50-89b7-13164623a12a)
 
 ## Getting Started
 1. Create a .env file with the variable `IPINFO_TOKEN = <your_token>`

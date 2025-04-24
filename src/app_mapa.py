@@ -5,11 +5,9 @@ from streamlit_folium import st_folium
 import integration_service
 from streamlit_js_eval import get_geolocation
 
-# Configuração inicial
 st.set_page_config(layout="centered")
-st.title("📍 Rastreamento de Rota do Usuário até o Domínio")
+st.title("📍 User Route Tracking to Domain")
 
-# Estado inicial da sessão
 if "last_processed_domain" not in st.session_state:
     st.session_state.last_processed_domain = None
     st.session_state.route_info = None
@@ -17,47 +15,45 @@ if "last_processed_domain" not in st.session_state:
     st.session_state.user_location = None
 
 def get_user_location():
-    """Obtém e armazena a localização do usuário"""
-    with st.spinner("Obtendo sua localização..."):
+    """Obtains and stores the user's location"""
+    with st.spinner("Getting your location..."):
         location = get_geolocation()
         if location and location.get("coords"):
             st.session_state.user_location = location
             return True
-    st.warning("Não foi possível obter sua localização.")
+    st.warning("Could not obtain your location.")
     return False
 
 def process_domain(domain):
-    """Processa o domínio alvo e obtém informações de rota"""
+    """Processes the target domain and obtains route information"""
     try:
         ip_alvo = socket.gethostbyname(domain)
         st.session_state.target_ip = ip_alvo
         st.session_state.route_info = integration_service.get_route_info(domain)
         return True
     except socket.gaierror:
-        st.error(f"Domínio inválido: {domain}")
+        st.error(f"Invalid domain: {domain}")
         return False
 
 def create_map(user_coords, route_info, target_domain):
-    """Cria o mapa com a rota traçada corretamente"""
-    # Prepara pontos do mapa começando com a localização do usuário
+    """Creates the map with the correctly traced route"""
     map_points = [{
         'latitude': user_coords['latitude'],
         'longitude': user_coords['longitude'],
-        'tipo': 'Você',
-        'info': 'Sua localização',
-        'order': 0  # Mantém a ordem original
+        'tipo': 'You',
+        'info': 'Your location',
+        'order': 0  
     }]
-    
-    # Adiciona todos os hops com suas informações
+
     for hop, info in sorted(route_info.items(), key=lambda x: x[0]):
         if info:
             hop_data = {
                 'latitude': None,
                 'longitude': None,
                 'tipo': f'Hop {hop}',
-                'info': f"Hop: {hop}<br>IP: {info.get('ip')}<br>Cidade: {info.get('city')}<br>Estado: {info.get('region')}<br>País: {info.get('country')}<br>Provedor: {info.get('provider')}<br>Localização: {info.get('loc')}",
-                'order': hop,  # Mantém a ordem original dos hops
-                'is_last': hop == max(route_info.keys())  # Marca o último hop
+                'info': f"Hop: {hop}<br>IP: {info.get('ip')}<br>City: {info.get('city')}<br>Region: {info.get('region')}<br>Country: {info.get('country')}<br>Provider: {info.get('provider')}<br>Location: {info.get('loc')}",
+                'order': hop,  
+                'is_last': hop == max(route_info.keys())  
             }
             if info.get('loc'):
                 try:
@@ -67,33 +63,28 @@ def create_map(user_coords, route_info, target_domain):
                 except (ValueError, AttributeError):
                     pass
             map_points.append(hop_data)
-    
-    # Filtra apenas pontos com localização válida, mantendo a ordem original
+
     valid_points = sorted(
         [p for p in map_points if p['latitude'] is not None and p['longitude'] is not None],
         key=lambda x: x['order']
     )
     
     if len(valid_points) < 2:
-        st.warning("Não há pontos suficientes com localização válida para traçar a rota.")
+        st.warning("There are not enough points with valid location to trace the route.")
         return None
-    
-    # Calcula o centro do mapa
+
     media_lat = sum(p['latitude'] for p in valid_points) / len(valid_points)
     media_lon = sum(p['longitude'] for p in valid_points) / len(valid_points)
-    
-    # Cria o mapa
+
     m = folium.Map(location=[media_lat, media_lon], zoom_start=4)
-    
-    # Adiciona marcadores com cores diferentes
+
     for point in valid_points:
-        # Determina a cor do ícone
-        if point['tipo'] == 'Você':
-            icon_color = 'red'  # Sua localização
+        if point['tipo'] == 'You':
+            icon_color = 'red'  # Your location
         elif point.get('is_last'):
-            icon_color = 'blue'  # Destino final
+            icon_color = 'blue'  # Final destination
         else:
-            icon_color = 'green'  # Hops intermediários
+            icon_color = 'green'  # Intermediate hops
         
         folium.Marker(
             [point['latitude'], point['longitude']],
@@ -102,11 +93,10 @@ def create_map(user_coords, route_info, target_domain):
             icon=folium.Icon(
                 color=icon_color,
                 icon='server' if point.get('is_last') else 'info-sign',
-                prefix='fa' if point.get('is_last') else None  # Usa Font Awesome para o ícone de destino
+                prefix='fa' if point.get('is_last') else None  
             )
         ).add_to(m)
-    
-    # Conecta os pontos na ordem correta
+
     folium.PolyLine(
         [(p['latitude'], p['longitude']) for p in valid_points],
         color="blue",
@@ -119,16 +109,14 @@ def create_map(user_coords, route_info, target_domain):
 
 container = st.container()
 with container:
-    dominio_alvo = st.text_input("Digite o domínio para rastrear a rota:")
+    dominio_alvo = st.text_input("Enter the domain to track the route:")
 
-# Obtém localização do usuário se ainda não tiver
 if not st.session_state.user_location:
     if not get_user_location():
         st.stop()
-with st.expander("Localização do Usuário"):
+with st.expander("User Location"):
     st.write(st.session_state.user_location)
 
-# Processa domínio apenas se for novo
 if dominio_alvo and dominio_alvo != st.session_state.last_processed_domain:
     st.session_state.last_processed_domain = dominio_alvo
     if process_domain(dominio_alvo):
@@ -136,15 +124,13 @@ if dominio_alvo and dominio_alvo != st.session_state.last_processed_domain:
     else:
         st.stop()
 
-# Exibe informações se disponíveis
 if dominio_alvo and st.session_state.route_info and st.session_state.user_location:
     coords = st.session_state.user_location["coords"]
-    st.info(f"Rastreando rota de sua localização até: {dominio_alvo} ({st.session_state.target_ip})")
+    st.info(f"Tracking route from your location to: {dominio_alvo} ({st.session_state.target_ip})")
     
-    with st.expander("Detalhes do resultado do rastreamento"):
+    with st.expander("Tracking result details"):
         st.write(st.session_state.route_info)
-    
-    # Cria e exibe o mapa
+
     mapa = create_map(
         {'latitude': coords.get('latitude'), 'longitude': coords.get('longitude')},
         st.session_state.route_info,
@@ -154,4 +140,4 @@ if dominio_alvo and st.session_state.route_info and st.session_state.user_locati
     if mapa:
         st_folium(mapa, width=700, height=500)
 else:
-    st.info("Digite um domínio válido para começar o rastreamento.")
+    st.info("Enter a valid domain to start tracking.")
